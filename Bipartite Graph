@@ -1,0 +1,81 @@
+/*
+    
+    Author : Abdullah Al Nayem (BlackNerd)
+    Problem Name : Red-blue Trees
+    Problem link : https://www.codechef.com/problems/RBTREES
+    
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+#define __Mammamia__                ios_base :: sync_with_stdio(false);
+#define ll                          long long
+#define MAXN                        100007
+
+ll n, ans = 0;
+string str;
+vector <int> color(MAXN), excess(MAXN), req(MAXN), parity(MAXN), graph[MAXN];
+
+void assignParity(int node, int parent, int prt)
+{
+    parity[node] = prt;
+
+    for (auto x : graph[node])
+        if (x != parent)
+            assignParity(x, node, prt ^ 1);
+}
+
+void dfs(int node, int par, int prt)
+{
+    excess[node] = (parity[node] == prt);
+    req[node] = (color[node] == 0);
+
+    for (auto x : graph[node])
+        if (x != par)
+            dfs(x, node, prt), excess[node] += excess[x], req[node] += req[x];
+
+    int temp = min(excess[node], req[node]);
+    excess[node] -= temp; req[node] -= temp;
+    ans += excess[node] + req[node];
+}
+
+void init(int lim)
+{
+    for (int i = 0; i <= lim; ++i)
+        color[i] = 0, excess[i] = 0, req[i] = 0, parity[i] = -1, graph[i].clear();
+}
+
+int main ()
+{
+    __Mammamia__
+
+    int test_case; cin >> test_case;
+    while(test_case--)
+    {
+        cin >> n; init(n);
+        for (int i = 1; i < n; ++i)
+        {
+            int u, v; cin >> u >> v;
+            graph[u].push_back(v);
+            graph[v].push_back(u);
+        }
+
+        cin >> str;
+        for (int i = 0; i < str.size(); ++i) color[i + 1] = str[i] - '0';
+
+        assignParity(1, -1, 0);
+        ll res = INT_MAX;
+
+        for (int i = 0; i < 2; ++i)
+        {
+            ans = 0, dfs(1, -1, i); 
+            if (excess[1] == req[1]) res = min(res, ans);
+        }
+
+        if (res == INT_MAX) cout << "-1" << endl;
+        else cout << res << endl;
+    }
+
+
+    return 0;
+}
